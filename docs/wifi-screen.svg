@@ -29,25 +29,25 @@
   <!-- Header -->
   <rect x="16" y="20" width="36" height="36" class="back-btn"/>
   <path d="M39 30 l-6 6 6 6" stroke="#888888" fill="none" stroke-width="2"/>
-  <text x="64" y="45" class="text-primary" font-size="20" font-weight="600">Conectar WiFi</text>
+  <text x="64" y="45" class="text-primary" font-size="20" font-weight="600">Connect WiFi</text>
 
   <!-- Portal alert -->
   <rect x="16" y="72" width="358" height="110" class="alert-warning"/>
-  <text x="32" y="96" class="text-primary" font-size="14" font-weight="600">Captive portal detectado</text>
-  <text x="32" y="116" class="text-primary" font-size="13" opacity="0.85">La red requiere autenticacion web</text>
+  <text x="32" y="96" class="text-primary" font-size="14" font-weight="600">Captive portal detected</text>
+  <text x="32" y="116" class="text-primary" font-size="13" opacity="0.85">This network requires web authentication</text>
   <rect x="32" y="130" width="326" height="36" class="btn-amber"/>
-  <text x="195" y="153" text-anchor="middle" class="text-dark" font-size="14" font-weight="600">Clonar mi MAC</text>
+  <text x="195" y="153" text-anchor="middle" class="text-dark" font-size="14" font-weight="600">Clone my MAC</text>
 
   <!-- Section header -->
-  <text x="16" y="214" class="text-primary" font-size="14" font-weight="500">Redes disponibles</text>
+  <text x="16" y="214" class="text-primary" font-size="14" font-weight="500">Available networks</text>
   <rect x="290" y="197" width="84" height="28" class="btn-outline"/>
-  <text x="332" y="215" text-anchor="middle" class="text-secondary" font-size="12">Escanear</text>
+  <text x="332" y="215" text-anchor="middle" class="text-secondary" font-size="12">Scan</text>
 
   <!-- Network: connected -->
   <rect x="16" y="234" width="358" height="64" class="card-connected"/>
   <path d="M41 254 a11 11 0 0 1 14.08 0 M37.42 251 a16 16 0 0 1 21.16 0 M44.53 258 a6 6 0 0 1 6.95 0 M48 262 h.01" class="wifi-icon-blue"/>
   <text x="72" y="258" class="text-primary" font-size="14" font-weight="500">Hotel Margarita</text>
-  <text x="72" y="276" class="text-secondary" font-size="12">Conectado</text>
+  <text x="72" y="276" class="text-secondary" font-size="12">Connected</text>
   <text x="350" y="262" text-anchor="end" class="text-secondary" font-size="12">-45 dBm</text>
 
   <!-- Network 2 -->
@@ -61,7 +61,7 @@
   <rect x="16" y="382" width="358" height="64" class="card-sm"/>
   <path d="M44.53 406 a6 6 0 0 1 6.95 0 M48 410 h.01" class="wifi-icon"/>
   <text x="72" y="406" class="text-primary" font-size="14" font-weight="500">Airport_Free</text>
-  <text x="72" y="424" class="text-secondary" font-size="12">Abierta</text>
+  <text x="72" y="424" class="text-secondary" font-size="12">Open</text>
   <text x="350" y="410" text-anchor="end" class="text-secondary" font-size="12">-78 dBm</text>
 
   <!-- Network 4 -->
@@ -74,11 +74,11 @@
   <!-- Modal (connect dialog) -->
   <rect x="0" y="540" width="390" height="220" fill="#0a0a0a" opacity="0.5"/>
   <rect x="45" y="570" width="300" height="180" class="modal-box"/>
-  <text x="65" y="600" class="text-primary" font-size="18" font-weight="600">Conectar a Cafe_Guest</text>
+  <text x="65" y="600" class="text-primary" font-size="18" font-weight="600">Connect to Cafe_Guest</text>
   <rect x="65" y="616" width="260" height="40" class="input-field"/>
-  <text x="77" y="641" class="text-secondary" font-size="14">Contrasena</text>
+  <text x="77" y="641" class="text-secondary" font-size="14">Password</text>
   <rect x="65" y="670" width="125" height="40" class="btn-outline"/>
-  <text x="128" y="695" text-anchor="middle" class="text-secondary" font-size="14">Cancelar</text>
+  <text x="128" y="695" text-anchor="middle" class="text-secondary" font-size="14">Cancel</text>
   <rect x="200" y="670" width="125" height="40" class="btn-blue"/>
-  <text x="262" y="695" text-anchor="middle" class="text-primary" font-size="14" font-weight="600">Conectar</text>
+  <text x="262" y="695" text-anchor="middle" class="text-primary" font-size="14" font-weight="600">Connect</text>
 </svg>

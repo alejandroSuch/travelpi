@@ -1,9 +1,9 @@
 #!/bin/bash
 #===============================================================================
-# PiTravel Router v2 - Script de instalación completo
+# PiTravel Router v2 - Full installation script
 # WiFi Manager + Media Server (nginx) + Battery + Jellyfin Sync
 #
-# Ejecutar como root: sudo bash install.sh
+# Run as root: sudo bash install.sh
 #===============================================================================
 
 set -eo pipefail
@@ -19,16 +19,16 @@ err() { echo -e "${RED}[✗]${NC} $1"; exit 1; }
 
 echo ""
 echo "╔═══════════════════════════════════════════════════════════╗"
-echo "║           PiTravel Router v2 - Instalador                 ║"
+echo "║           PiTravel Router v2 - Installer                   ║"
 echo "║     WiFi Manager + Media Server + Battery + Sync          ║"
 echo "╚═══════════════════════════════════════════════════════════╝"
 echo ""
 
-# Verificar root
-[[ $EUID -ne 0 ]] && err "Ejecuta como root: sudo bash install.sh"
+# Check root
+[[ $EUID -ne 0 ]] && err "Run as root: sudo bash install.sh"
 
 #===============================================================================
-# CONFIGURACIÓN
+# CONFIGURATION
 #===============================================================================
 AP_SSID="PiTravel"
 AP_PASS="travel1234"
@@ -36,30 +36,30 @@ AP_IP="192.168.50.1"
 MEDIA_PATH="/media/usb/videos"
 INSTALL_DIR="/opt/pitravel"
 
-echo "Configuración del Access Point:"
+echo "Access Point configuration:"
 read -p "  SSID [$AP_SSID]: " input && AP_SSID="${input:-$AP_SSID}"
-read -p "  Contraseña [$AP_PASS]: " input && AP_PASS="${input:-$AP_PASS}"
+read -p "  Password [$AP_PASS]: " input && AP_PASS="${input:-$AP_PASS}"
 echo ""
 
-read -p "¿Instalar soporte PiSugar (batería)? [s/N]: " INSTALL_PISUGAR
-read -p "¿Configurar sincronización Jellyfin? [s/N]: " INSTALL_SYNC
+read -p "Install PiSugar (battery) support? [y/N]: " INSTALL_PISUGAR
+read -p "Configure Jellyfin sync? [y/N]: " INSTALL_SYNC
 
-if [[ "$INSTALL_SYNC" == "s" ]]; then
+if [[ "$INSTALL_SYNC" == "y" ]]; then
     echo ""
-    echo "Configuración Jellyfin (dejar vacío para configurar después):"
+    echo "Jellyfin configuration (leave empty to configure later):"
     read -p "  API Key: " JELLYFIN_API_KEY
     read -p "  User ID: " JELLYFIN_USER_ID
     JELLYFIN_URL="http://10.0.0.1:8096"
-    read -p "  URL Jellyfin [$JELLYFIN_URL]: " input && JELLYFIN_URL="${input:-$JELLYFIN_URL}"
+    read -p "  Jellyfin URL [$JELLYFIN_URL]: " input && JELLYFIN_URL="${input:-$JELLYFIN_URL}"
 fi
 
 echo ""
-echo "Configuración WireGuard (dejar vacío para configurar después):"
-read -p "  Public key del servidor: " WG_PEER_PUBKEY
-read -p "  Endpoint (ej: tudominio.duckdns.org:51820): " WG_PEER_ENDPOINT
+echo "WireGuard configuration (leave empty to configure later):"
+read -p "  Server public key: " WG_PEER_PUBKEY
+read -p "  Endpoint (e.g. yourdomain.duckdns.org:51820): " WG_PEER_ENDPOINT
 
 echo ""
-echo "Resumen:"
+echo "Summary:"
 echo "  AP: $AP_SSID / $AP_PASS"
 echo "  IP: $AP_IP"
 echo "  Media: $MEDIA_PATH"
@@ -67,44 +67,44 @@ echo "  PiSugar: ${INSTALL_PISUGAR:-n}"
 echo "  Jellyfin Sync: ${INSTALL_SYNC:-n}"
 [[ -n "$WG_PEER_PUBKEY" ]] && echo "  WireGuard: $WG_PEER_ENDPOINT"
 echo ""
-read -p "¿Continuar? [s/N]: " confirm
-[[ "$confirm" != "s" ]] && exit 0
+read -p "Continue? [y/N]: " confirm
+[[ "$confirm" != "y" ]] && exit 0
 
 #===============================================================================
-# 1. SISTEMA BASE
+# 1. BASE SYSTEM
 #===============================================================================
-log "Actualizando sistema..."
+log "Updating system..."
 apt update && apt upgrade -y
 
-log "Instalando dependencias..."
+log "Installing dependencies..."
 apt install -y \
     hostapd dnsmasq wireguard iptables-persistent \
     python3-flask nginx \
     wireless-tools net-tools curl wget i2c-tools
 
 #===============================================================================
-# 2. CREAR ESTRUCTURA DE DIRECTORIOS
+# 2. CREATE DIRECTORY STRUCTURE
 #===============================================================================
-log "Creando directorios..."
+log "Creating directories..."
 mkdir -p $INSTALL_DIR/templates
 mkdir -p $MEDIA_PATH/.posters
 mkdir -p /var/log/pitravel
 
 #===============================================================================
-# 3. DETECTAR INTERFACES WIFI
+# 3. DETECT WIFI INTERFACES
 #===============================================================================
-log "Detectando interfaces WiFi..."
+log "Detecting WiFi interfaces..."
 
-# wlan0 = integrado (cliente), wlanX = USB (AP)
+# wlan0 = built-in (client), wlanX = USB (AP)
 USB_WIFI=$(iw dev | grep Interface | awk '{print $2}' | grep -v wlan0 | head -1)
-[[ -z "$USB_WIFI" ]] && warn "Adaptador USB no detectado, usando wlan1 por defecto" && USB_WIFI="wlan1"
-log "  Cliente: wlan0"
+[[ -z "$USB_WIFI" ]] && warn "USB adapter not detected, defaulting to wlan1" && USB_WIFI="wlan1"
+log "  Client: wlan0"
 log "  AP: $USB_WIFI"
 
 #===============================================================================
-# 4. CONFIGURAR RED
+# 4. CONFIGURE NETWORK
 #===============================================================================
-log "Configurando red..."
+log "Configuring network..."
 
 cat > /etc/dhcpcd.conf << EOF
 interface $USB_WIFI
@@ -115,7 +115,7 @@ EOF
 #===============================================================================
 # 5. HOSTAPD (Access Point)
 #===============================================================================
-log "Configurando hostapd..."
+log "Configuring hostapd..."
 
 cat > /etc/hostapd/hostapd.conf << EOF
 interface=$USB_WIFI
@@ -141,7 +141,7 @@ systemctl enable hostapd
 #===============================================================================
 # 6. DNSMASQ (DHCP)
 #===============================================================================
-log "Configurando dnsmasq..."
+log "Configuring dnsmasq..."
 
 mv /etc/dnsmasq.conf /etc/dnsmasq.conf.bak 2>/dev/null || true
 
@@ -155,9 +155,9 @@ EOF
 systemctl enable dnsmasq
 
 #===============================================================================
-# 7. IP FORWARDING Y FIREWALL
+# 7. IP FORWARDING AND FIREWALL
 #===============================================================================
-log "Configurando firewall..."
+log "Configuring firewall..."
 
 echo "net.ipv4.ip_forward=1" > /etc/sysctl.d/99-pitravel.conf
 sysctl -w net.ipv4.ip_forward=1
@@ -165,12 +165,12 @@ sysctl -w net.ipv4.ip_forward=1
 iptables -t nat -F
 iptables -F FORWARD
 
-# NAT por WireGuard (preferido)
+# NAT via WireGuard (preferred)
 iptables -t nat -A POSTROUTING -o wg0 -j MASQUERADE
 iptables -A FORWARD -i $USB_WIFI -o wg0 -j ACCEPT
 iptables -A FORWARD -i wg0 -o $USB_WIFI -m state --state RELATED,ESTABLISHED -j ACCEPT
 
-# Fallback: NAT por wlan0
+# Fallback: NAT via wlan0
 iptables -t nat -A POSTROUTING -o wlan0 -j MASQUERADE
 iptables -A FORWARD -i $USB_WIFI -o wlan0 -j ACCEPT
 iptables -A FORWARD -i wlan0 -o $USB_WIFI -m state --state RELATED,ESTABLISHED -j ACCEPT
@@ -180,7 +180,7 @@ netfilter-persistent save
 #===============================================================================
 # 8. WIREGUARD
 #===============================================================================
-log "Configurando WireGuard..."
+log "Configuring WireGuard..."
 
 if [ ! -f /etc/wireguard/privatekey ]; then
     wg genkey | tee /etc/wireguard/privatekey | wg pubkey > /etc/wireguard/publickey
@@ -209,12 +209,12 @@ PrivateKey = $PRIV_KEY
 Address = 10.0.0.2/24
 
 # [Peer]
-# PublicKey = <clave_publica_servidor>
-# Endpoint = tudominio.duckdns.org:51820
+# PublicKey = <server_public_key>
+# Endpoint = yourdomain.duckdns.org:51820
 # AllowedIPs = 0.0.0.0/0
 # PersistentKeepalive = 25
 EOF
-    warn "Edita /etc/wireguard/wg0.conf con los datos de tu servidor VPN"
+    warn "Edit /etc/wireguard/wg0.conf with your VPN server details"
 fi
 
 chmod 600 /etc/wireguard/wg0.conf
@@ -222,7 +222,7 @@ chmod 600 /etc/wireguard/wg0.conf
 #===============================================================================
 # 9. NGINX (Media Server)
 #===============================================================================
-log "Configurando nginx (media server)..."
+log "Configuring nginx (media server)..."
 
 cat > /etc/nginx/sites-available/pitravel-media << EOF
 server {
@@ -234,10 +234,10 @@ server {
     autoindex_exact_size off;
     autoindex_localtime on;
     
-    # Charset para nombres con acentos
+    # Charset for accented filenames
     charset utf-8;
     
-    # Tipos MIME para vídeo
+    # Video MIME types
     types {
         video/mp4 mp4 m4v;
         video/x-matroska mkv;
@@ -248,17 +248,17 @@ server {
     location / {
         try_files \$uri \$uri/ =404;
         
-        # Headers para streaming
+        # Streaming headers
         add_header Accept-Ranges bytes;
         add_header Access-Control-Allow-Origin *;
     }
     
-    # Optimización para archivos grandes
+    # Large file optimization
     sendfile on;
     tcp_nopush on;
     tcp_nodelay on;
     
-    # Buffer para vídeos
+    # Video buffer
     client_max_body_size 0;
     proxy_buffering off;
 }
@@ -269,9 +269,9 @@ rm -f /etc/nginx/sites-enabled/default
 systemctl enable nginx
 
 #===============================================================================
-# 10. APLICACIÓN FLASK
+# 10. FLASK APPLICATION
 #===============================================================================
-log "Instalando aplicación web..."
+log "Installing web application..."
 
 cat > $INSTALL_DIR/app.py << 'PYEOF'
 #!/usr/bin/env python3
@@ -388,11 +388,11 @@ def api_scan():
 def api_connect():
     d = request.json
     ssid, pw = d.get('ssid'), d.get('password')
-    if not ssid: return jsonify({"success": False, "error": "SSID requerido"})
+    if not ssid: return jsonify({"success": False, "error": "SSID required"})
     # Create a new network to avoid assuming network 0 exists
     net_id = run_cmd(["sudo", "wpa_cli", "-i", "wlan0", "add_network"]).strip()
     if not net_id.isdigit():
-        return jsonify({"success": False, "error": "Error creando red"})
+        return jsonify({"success": False, "error": "Failed to create network"})
     run_cmd(["sudo", "wpa_cli", "-i", "wlan0", "disconnect"])
     run_cmd(["sudo", "wpa_cli", "-i", "wlan0", "set_network", net_id, "ssid", f'"{ssid}"'])
     if pw:
@@ -410,12 +410,12 @@ def api_connect():
             portal = check_portal()
             if not portal: run_cmd("sudo systemctl restart wg-quick@wg0")
             return jsonify({"success": True, "portal": portal})
-    return jsonify({"success": False, "error": "No se pudo conectar"})
+    return jsonify({"success": False, "error": "Connection failed"})
 
 @app.route('/api/wifi/clone', methods=['POST'])
 def api_clone():
     mac = next((c['mac'] for c in get_clients() if c['ip']==request.remote_addr), None)
-    if not mac: return jsonify({"success": False, "error": "MAC no detectada"})
+    if not mac: return jsonify({"success": False, "error": "MAC not detected"})
     run_cmd("sudo wpa_cli -i wlan0 disconnect")
     run_cmd("sudo ip link set wlan0 down")
     run_cmd(["sudo", "ip", "link", "set", "wlan0", "address", mac])
@@ -432,11 +432,11 @@ def api_reconnect():
         run_cmd("sudo systemctl restart wg-quick@wg0")
         time.sleep(2)
         return jsonify({"success": True, "vpn": check_vpn()})
-    return jsonify({"success": False, "error": "Portal sigue activo"})
+    return jsonify({"success": False, "error": "Portal still active"})
 
 @app.route('/api/sync', methods=['POST'])
 def api_sync():
-    if not check_vpn(): return jsonify({"success": False, "error": "VPN no activa"})
+    if not check_vpn(): return jsonify({"success": False, "error": "VPN not active"})
     import threading
     threading.Thread(target=lambda: subprocess.run(["python3", "/opt/pitravel/sync.py"])).start()
     return jsonify({"success": True})
@@ -450,13 +450,13 @@ sed -i "s|__MEDIA_PATH__|$MEDIA_PATH|g" $INSTALL_DIR/app.py
 sed -i "s|__USB_WIFI__|$USB_WIFI|g" $INSTALL_DIR/app.py
 
 #===============================================================================
-# 11. TEMPLATES HTML
+# 11. HTML TEMPLATES
 #===============================================================================
-log "Creando templates..."
+log "Creating templates..."
 
 cat > $INSTALL_DIR/templates/home.html << 'HTMLEOF'
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
@@ -502,33 +502,33 @@ h1{font-size:22px;font-weight:600}
 <div class="header">
 <div class="logo"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div>
 <h1>PiTravel</h1>
-<p class="subtitle">Router de viaje personal</p>
+<p class="subtitle">Personal travel router</p>
 </div>
 <div class="stats">
-<div class="stat"><p class="stat-label">Batería</p><p class="stat-value green" id="battery">--%</p></div>
-<div class="stat"><p class="stat-label">Dispositivos</p><p class="stat-value" id="devices">-</p></div>
+<div class="stat"><p class="stat-label">Battery</p><p class="stat-value green" id="battery">--%</p></div>
+<div class="stat"><p class="stat-label">Devices</p><p class="stat-value" id="devices">-</p></div>
 <div class="stat"><p class="stat-label">VPN</p><p class="stat-value" id="vpn">--</p></div>
 </div>
 <div class="services">
 <a href="/wifi" class="service">
 <div class="service-icon blue"><svg viewBox="0 0 24 24"><path d="M5 12.55a11 11 0 0114.08 0M1.42 9a16 16 0 0121.16 0M8.53 16.11a6 6 0 016.95 0M12 20h.01"/></svg></div>
-<div class="service-info"><p class="service-title">Conectar WiFi</p><p class="service-desc" id="wifi-status">Sin conexión</p></div>
+<div class="service-info"><p class="service-title">Connect WiFi</p><p class="service-desc" id="wifi-status">Not connected</p></div>
 <span class="service-badge badge-amber" id="wifi-badge" style="display:none">Portal</span>
 <svg class="chevron" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6" stroke-width="2" fill="none"/></svg>
 </a>
 <a href="http://192.168.50.1:8080" class="service">
 <div class="service-icon purple"><svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>
-<div class="service-info"><p class="service-title">Media center</p><p class="service-desc" id="media-status">-</p></div>
+<div class="service-info"><p class="service-title">Media Center</p><p class="service-desc" id="media-status">-</p></div>
 <svg class="chevron" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6" stroke-width="2" fill="none"/></svg>
 </a>
 <div class="service" onclick="sync()">
 <div class="service-icon teal"><svg viewBox="0 0 24 24"><path d="M21 12a9 9 0 01-9 9m0 0a9 9 0 01-9-9m9 9V3m0 0L8 8m4-5l4 5"/></svg></div>
-<div class="service-info"><p class="service-title">Sincronizar</p><p class="service-desc" id="sync-status">Con Jellyfin de casa</p></div>
+<div class="service-info"><p class="service-title">Sync</p><p class="service-desc" id="sync-status">From home Jellyfin</p></div>
 <svg class="chevron" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6" stroke-width="2" fill="none"/></svg>
 </div>
 </div>
 <div class="storage">
-<div class="storage-header"><span>Almacenamiento</span><span id="storage-text">-- / --</span></div>
+<div class="storage-header"><span>Storage</span><span id="storage-text">-- / --</span></div>
 <div class="storage-bar"><div class="storage-fill" id="storage-fill" style="width:0%"></div></div>
 </div>
 </div>
@@ -540,16 +540,16 @@ document.getElementById('battery').textContent=d.battery.percent?d.battery.perce
 document.getElementById('devices').textContent=d.devices;
 document.getElementById('vpn').textContent=d.vpn?'On':'Off';
 document.getElementById('vpn').className='stat-value'+(d.vpn?' green':'');
-document.getElementById('wifi-status').textContent=d.ssid||'Sin conexión';
+document.getElementById('wifi-status').textContent=d.ssid||'Not connected';
 document.getElementById('wifi-badge').style.display=d.portal?'inline':'none';
-if(d.media)document.getElementById('media-status').textContent=d.media.movies+' películas, '+d.media.series+' series';
+if(d.media)document.getElementById('media-status').textContent=d.media.movies+' movies, '+d.media.series+' series';
 if(d.storage){document.getElementById('storage-text').textContent=d.storage.used+' / '+d.storage.total;
 document.getElementById('storage-fill').style.width=d.storage.percent+'%';}
 }catch(e){console.error(e)}}
 async function sync(){
-if(!confirm('¿Iniciar sincronización con Jellyfin?'))return;
+if(!confirm('Start Jellyfin sync?'))return;
 try{const r=await fetch('/api/sync',{method:'POST'});const d=await r.json();
-alert(d.success?'Sincronización iniciada':'Error: '+d.error);}catch(e){alert('Error');}}
+alert(d.success?'Sync started':'Error: '+d.error);}catch(e){alert('Error');}}
 load();setInterval(load,10000);
 </script>
 </body>
@@ -558,7 +558,7 @@ HTMLEOF
 
 cat > $INSTALL_DIR/templates/wifi.html << 'HTMLEOF'
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
@@ -606,32 +606,32 @@ h1{font-size:20px;font-weight:600}
 <div class="container">
 <div class="header">
 <a href="/" class="back"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></a>
-<h1>Conectar WiFi</h1>
+<h1>Connect WiFi</h1>
 </div>
 <div id="alert-portal" class="alert warning" style="display:none">
-<p class="alert-title">Captive portal detectado</p>
-<p class="alert-text">La red requiere autenticación web</p>
-<button class="btn btn-amber" onclick="cloneMac()">Clonar mi MAC</button>
+<p class="alert-title">Captive portal detected</p>
+<p class="alert-text">This network requires web authentication</p>
+<button class="btn btn-amber" onclick="cloneMac()">Clone my MAC</button>
 <p class="mac" id="my-mac"></p>
 </div>
 <div id="alert-clone" class="alert success" style="display:none">
-<p class="alert-title">MAC clonada</p>
-<p class="alert-text">1. Desconecta de PiTravel<br>2. Conéctate al WiFi del hotel<br>3. Pasa el portal<br>4. Vuelve y pulsa Reconectar</p>
-<button class="btn btn-blue" onclick="reconnect()">Reconectar</button>
+<p class="alert-title">MAC cloned</p>
+<p class="alert-text">1. Disconnect from PiTravel<br>2. Connect to the hotel WiFi<br>3. Pass the portal<br>4. Come back and tap Reconnect</p>
+<button class="btn btn-blue" onclick="reconnect()">Reconnect</button>
 </div>
 <div class="section">
-<span class="section-title">Redes disponibles</span>
-<button class="btn-outline" style="width:auto;padding:6px 12px;font-size:12px" onclick="scan()">Escanear</button>
+<span class="section-title">Available networks</span>
+<button class="btn-outline" style="width:auto;padding:6px 12px;font-size:12px" onclick="scan()">Scan</button>
 </div>
-<div id="networks" class="networks"><p style="color:var(--text2);text-align:center;padding:20px">Cargando...</p></div>
+<div id="networks" class="networks"><p style="color:var(--text2);text-align:center;padding:20px">Loading...</p></div>
 </div>
 <div id="modal" class="modal">
 <div class="modal-box">
-<p class="modal-title">Conectar a <span id="modal-ssid"></span></p>
-<input type="password" id="pwd" class="input" placeholder="Contraseña">
+<p class="modal-title">Connect to <span id="modal-ssid"></span></p>
+<input type="password" id="pwd" class="input" placeholder="Password">
 <div class="modal-btns">
-<button class="btn btn-outline" onclick="closeModal()">Cancelar</button>
-<button class="btn btn-blue" onclick="doConnect()">Conectar</button>
+<button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+<button class="btn btn-blue" onclick="doConnect()">Connect</button>
 </div>
 </div>
 </div>
@@ -639,7 +639,7 @@ h1{font-size:20px;font-weight:600}
 let selNet=null;
 function esc(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML;}
 async function scan(){
-document.getElementById('networks').innerHTML='<p style="color:var(--text2);text-align:center;padding:20px">Escaneando...</p>';
+document.getElementById('networks').innerHTML='<p style="color:var(--text2);text-align:center;padding:20px">Scanning...</p>';
 const r=await fetch('/api/wifi/scan');const d=await r.json();
 const container=document.getElementById('networks');container.innerHTML='';
 d.networks.forEach(n=>{
@@ -649,13 +649,13 @@ const signal=n.signal>-50?'<path d="M5 12.55a11 11 0 0114.08 0M1.42 9a16 16 0 01
 n.signal>-70?'<path d="M5 12.55a11 11 0 0114.08 0M8.53 16.11a6 6 0 016.95 0M12 20h.01"/>':
 '<path d="M8.53 16.11a6 6 0 016.95 0M12 20h.01"/>';
 el.innerHTML=`<div class="network-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2">${signal}</svg></div>
-<div class="network-info"><p class="network-name">${esc(n.ssid)}</p><p class="network-sec">${n.connected?'Conectado':esc(n.security||'Abierta')}</p></div>
+<div class="network-info"><p class="network-name">${esc(n.ssid)}</p><p class="network-sec">${n.connected?'Connected':esc(n.security||'Open')}</p></div>
 <span class="network-signal">${n.signal} dBm</span>`;
 container.appendChild(el);})}
 async function checkStatus(){
 const r=await fetch('/api/status');const d=await r.json();
 document.getElementById('alert-portal').style.display=d.portal?'block':'none';
-if(d.client_mac)document.getElementById('my-mac').textContent='Tu MAC: '+d.client_mac;}
+if(d.client_mac)document.getElementById('my-mac').textContent='Your MAC: '+d.client_mac;}
 function selectNet(ssid,sec){selNet={ssid,sec};if(sec){document.getElementById('modal-ssid').textContent=ssid;document.getElementById('pwd').value='';document.getElementById('modal').classList.add('active');}else{connect(ssid,null);}}
 
 function closeModal(){document.getElementById('modal').classList.remove('active');}
@@ -668,7 +668,7 @@ const r=await fetch('/api/wifi/clone',{method:'POST'});const d=await r.json();
 if(d.success){document.getElementById('alert-portal').style.display='none';document.getElementById('alert-clone').style.display='block';}else{alert('Error: '+d.error);}}
 async function reconnect(){
 const r=await fetch('/api/wifi/reconnect',{method:'POST'});const d=await r.json();
-if(d.success){document.getElementById('alert-clone').style.display='none';alert('¡Conectado! VPN: '+(d.vpn?'Activa':'Inactiva'));scan();}else{alert('Error: '+d.error);}}
+if(d.success){document.getElementById('alert-clone').style.display='none';alert('Connected! VPN: '+(d.vpn?'Active':'Inactive'));scan();}else{alert('Error: '+d.error);}}
 scan();checkStatus();
 </script>
 </body>
@@ -676,9 +676,9 @@ scan();checkStatus();
 HTMLEOF
 
 #===============================================================================
-# 12. SERVICIO SYSTEMD
+# 12. SYSTEMD SERVICE
 #===============================================================================
-log "Configurando servicios..."
+log "Configuring services..."
 
 cat > /etc/systemd/system/pitravel.service << EOF
 [Unit]
@@ -701,18 +701,18 @@ systemctl daemon-reload
 systemctl enable pitravel
 
 #===============================================================================
-# 13. PISUGAR (opcional)
+# 13. PISUGAR (optional)
 #===============================================================================
-if [[ "$INSTALL_PISUGAR" == "s" ]]; then
-    log "Instalando PiSugar..."
+if [[ "$INSTALL_PISUGAR" == "y" ]]; then
+    log "Installing PiSugar..."
     curl -sSL http://cdn.pisugar.com/release/pisugar-power-manager.sh | bash
 fi
 
 #===============================================================================
-# 14. JELLYFIN SYNC (opcional)
+# 14. JELLYFIN SYNC (optional)
 #===============================================================================
-if [[ "$INSTALL_SYNC" == "s" ]]; then
-    log "Configurando Jellyfin sync..."
+if [[ "$INSTALL_SYNC" == "y" ]]; then
+    log "Configuring Jellyfin sync..."
     
     cat > $INSTALL_DIR/sync.py << 'SYNCEOF'
 #!/usr/bin/env python3
@@ -743,18 +743,18 @@ def download(item):
     fname = "".join(c for c in name if c.isalnum() or c in ' .-_').strip() + ".mp4"
     path = os.path.join(MEDIA, fname)
     if os.path.exists(path):
-        log(f"Ya existe: {fname}")
+        log(f"Already exists: {fname}")
         return
-    log(f"Descargando: {fname}")
+    log(f"Downloading: {fname}")
     subprocess.run(["wget", "-q", "--header", f"X-Emby-Token: {API_KEY}",
         "-O", path, f"{JELLYFIN_URL}/Items/{item['Id']}/Download"], timeout=7200)
 
 if __name__ == "__main__":
     os.makedirs(MEDIA, exist_ok=True)
     items = get_favorites()[:20]
-    log(f"Favoritos: {len(items)}")
+    log(f"Favorites: {len(items)}")
     for i in items: download(i)
-    log("Completado")
+    log("Done")
 SYNCEOF
 
     chmod +x "$INSTALL_DIR/sync.py"
@@ -765,25 +765,25 @@ SYNCEOF
     sed -i "s|__JELLYFIN_USER_ID__|$JELLYFIN_USER_ID|g" $INSTALL_DIR/sync.py
     sed -i "s|__MEDIA_PATH__|$MEDIA_PATH|g" $INSTALL_DIR/sync.py
 
-    [[ -z "$JELLYFIN_API_KEY" ]] && warn "Edita $INSTALL_DIR/sync.py con tu API_KEY y USER_ID de Jellyfin"
+    [[ -z "$JELLYFIN_API_KEY" ]] && warn "Edit $INSTALL_DIR/sync.py with your Jellyfin API_KEY and USER_ID"
 
     #============================================================================
-    # 14b. CRONTAB + LOGROTATE (sync automático)
+    # 14b. CRONTAB + LOGROTATE (automatic sync)
     #============================================================================
-    log "Configurando sync automático..."
+    log "Configuring automatic sync..."
 
     cat > $INSTALL_DIR/sync_cron.sh << 'EOF'
 #!/bin/bash
 if sudo wg show wg0 2>/dev/null | grep -q "interface"; then
     /usr/bin/python3 /opt/pitravel/sync.py >> /var/log/pitravel/sync.log 2>&1
 else
-    echo "$(date): VPN no activa, sync cancelado" >> /var/log/pitravel/sync.log
+    echo "$(date): VPN not active, sync skipped" >> /var/log/pitravel/sync.log
 fi
 EOF
 
     chmod +x $INSTALL_DIR/sync_cron.sh
 
-    # Añadir al crontab de root si no existe ya
+    # Add to root crontab if not already present
     CRON_JOB="0 3 * * * /bin/bash /opt/pitravel/sync_cron.sh"
     ( sudo crontab -l 2>/dev/null | grep -v "sync_cron"; echo "$CRON_JOB" ) | sudo crontab -
 
@@ -799,42 +799,42 @@ EOF
 }
 EOF
 
-    log "  Cron: sync diario a las 3am"
-    log "  Logrotate: rotación semanal, 4 semanas"
+    log "  Cron: daily sync at 3am"
+    log "  Logrotate: weekly rotation, 4 weeks"
 fi
 
 #===============================================================================
-# 15. MONTAR USB AUTOMÁTICAMENTE
+# 15. USB AUTOMOUNT
 #===============================================================================
-log "Configurando automount USB..."
+log "Configuring USB automount..."
 
 mkdir -p /media/usb
 grep -q '/media/usb' /etc/fstab || echo '/dev/sda1 /media/usb auto defaults,nofail,x-systemd.device-timeout=5 0 0' >> /etc/fstab
 
 #===============================================================================
-# FINALIZADO
+# DONE
 #===============================================================================
 echo ""
 echo "╔═══════════════════════════════════════════════════════════╗"
-echo "║              ¡Instalación completada!                     ║"
+echo "║              Installation complete!                       ║"
 echo "╚═══════════════════════════════════════════════════════════╝"
 echo ""
-echo -e "${GREEN}Tu Access Point:${NC}"
+echo -e "${GREEN}Your Access Point:${NC}"
 echo "  SSID: $AP_SSID"
 echo "  Pass: $AP_PASS"
 echo "  IP:   $AP_IP"
 echo ""
-echo -e "${GREEN}Tu clave pública WireGuard:${NC}"
+echo -e "${GREEN}Your WireGuard public key:${NC}"
 cat /etc/wireguard/publickey
 echo ""
-echo -e "${YELLOW}Próximos pasos:${NC}"
+echo -e "${YELLOW}Next steps:${NC}"
 STEP=1
-[[ -z "$WG_PEER_PUBKEY" ]] && echo "  $((STEP++)). Edita /etc/wireguard/wg0.conf con datos de tu servidor VPN"
-[[ "$INSTALL_SYNC" == "s" && -z "$JELLYFIN_API_KEY" ]] && echo "  $((STEP++)). Edita $INSTALL_DIR/sync.py con API_KEY de Jellyfin"
-echo "  $((STEP++)). Conecta SSD/pendrive USB"
-echo "  $((STEP++)). Reinicia: sudo reboot"
+[[ -z "$WG_PEER_PUBKEY" ]] && echo "  $((STEP++)). Edit /etc/wireguard/wg0.conf with your VPN server details"
+[[ "$INSTALL_SYNC" == "y" && -z "$JELLYFIN_API_KEY" ]] && echo "  $((STEP++)). Edit $INSTALL_DIR/sync.py with your Jellyfin API_KEY"
+echo "  $((STEP++)). Plug in USB drive/SSD"
+echo "  $((STEP++)). Reboot: sudo reboot"
 echo ""
-echo -e "${GREEN}Acceso:${NC}"
+echo -e "${GREEN}Access:${NC}"
 echo "  Panel:  http://$AP_IP"
-echo "  Media:  http://$AP_IP:8080 (para Infuse/VLC)"
+echo "  Media:  http://$AP_IP:8080 (for Infuse/VLC)"
 echo ""

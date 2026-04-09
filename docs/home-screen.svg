@@ -35,10 +35,10 @@
   <rect x="138" y="160" width="114" height="68" class="card-sm"/>
   <rect x="260" y="160" width="114" height="68" class="card-sm"/>
 
-  <text x="73" y="184" text-anchor="middle" class="text-secondary" font-size="11">Bateria</text>
+  <text x="73" y="184" text-anchor="middle" class="text-secondary" font-size="11">Battery</text>
   <text x="73" y="212" text-anchor="middle" class="text-green" font-size="18" font-weight="600">78%</text>
 
-  <text x="195" y="184" text-anchor="middle" class="text-secondary" font-size="11">Dispositivos</text>
+  <text x="195" y="184" text-anchor="middle" class="text-secondary" font-size="11">Devices</text>
   <text x="195" y="212" text-anchor="middle" class="text-primary" font-size="18" font-weight="600">3</text>
 
   <text x="317" y="184" text-anchor="middle" class="text-secondary" font-size="11">VPN</text>
@@ -48,7 +48,7 @@
   <rect x="16" y="252" width="358" height="72" class="card"/>
   <rect x="32" y="266" width="44" height="44" class="icon-blue"/>
   <path d="M46 284 a11 11 0 0 1 14.08 0 M42.42 281 a16 16 0 0 1 21.16 0 M49.53 288 a6 6 0 0 1 6.95 0 M54 292 h.01" stroke="#60a5fa" fill="none" stroke-width="2"/>
-  <text x="90" y="286" class="text-primary" font-size="15" font-weight="500">Conectar WiFi</text>
+  <text x="90" y="286" class="text-primary" font-size="15" font-weight="500">Connect WiFi</text>
   <text x="90" y="304" class="text-secondary" font-size="13">Hotel Margarita</text>
   <path d="M352 288 l6-6 -6-6" class="chevron"/>
 
@@ -57,20 +57,20 @@
   <rect x="32" y="348" width="44" height="44" class="icon-purple"/>
   <polygon points="47,358 63,370 47,382" stroke="#a78bfa" fill="none" stroke-width="2"/>
   <text x="90" y="368" class="text-primary" font-size="15" font-weight="500">Media center</text>
-  <text x="90" y="386" class="text-secondary" font-size="13">12 peliculas, 3 series</text>
+  <text x="90" y="386" class="text-secondary" font-size="13">12 movies, 3 series</text>
   <path d="M352 370 l6-6 -6-6" class="chevron"/>
 
   <!-- Sync card -->
   <rect x="16" y="416" width="358" height="72" class="card"/>
   <rect x="32" y="430" width="44" height="44" class="icon-teal"/>
   <path d="M63 452 a9 9 0 0 1-9 9 m0 0 a9 9 0 0 1-9-9 m9 9 V443 m0 0 l-4 5 m4-5 l4 5" stroke="#5eead4" fill="none" stroke-width="2"/>
-  <text x="90" y="450" class="text-primary" font-size="15" font-weight="500">Sincronizar</text>
-  <text x="90" y="468" class="text-secondary" font-size="13">Con Jellyfin de casa</text>
+  <text x="90" y="450" class="text-primary" font-size="15" font-weight="500">Sync</text>
+  <text x="90" y="468" class="text-secondary" font-size="13">From home Jellyfin</text>
   <path d="M352 452 l6-6 -6-6" class="chevron"/>
 
   <!-- Storage -->
   <rect x="16" y="508" width="358" height="64" class="card-sm"/>
-  <text x="32" y="532" class="text-secondary" font-size="12">Almacenamiento</text>
+  <text x="32" y="532" class="text-secondary" font-size="12">Storage</text>
   <text x="358" y="532" text-anchor="end" class="text-secondary" font-size="12">12.4 / 64 GB</text>
   <rect x="32" y="544" width="326" height="6" class="bar-bg"/>
   <rect x="32" y="544" width="63" height="6" class="bar-fill"/>
