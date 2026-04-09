@@ -6,24 +6,22 @@ Raspberry Pi travel router with WiFi management, captive portal bypass, WireGuar
 
 Turns a Raspberry Pi into a portable travel router. Connect to hotel/cafe WiFi, share it as a private access point, route traffic through your home VPN, and carry your media library offline.
 
-```
-┌─────────────────────────────────────────────────────────┐
-│                    Hotel / Cafe WiFi                     │
-└────────────────────────┬────────────────────────────────┘
-                         │ wlan0 (built-in, client)
-                    ┌────┴─────┐
-                    │          │
-                    │ Pi       │──── wg0 (WireGuard VPN)
-                    │ Travel   │          │
-                    │          │     Home network
-                    └────┬─────┘     (Jellyfin, etc.)
-                         │ wlan1 (USB adapter, AP)
-              ┌──────────┼──────────┐
-              │          │          │
-           Phone      Laptop     Tablet
-              └──────────┴──────────┘
-                  "PiTravel" SSID
-                  192.168.50.0/24
+```mermaid
+graph TD
+    HOTEL["Hotel / Cafe WiFi"]
+    PI["PiTravel Router"]
+    VPN["WireGuard VPN<br/><i>wg0</i>"]
+    HOME["Home Network<br/>(Jellyfin, etc.)"]
+    PHONE["Phone"]
+    LAPTOP["Laptop"]
+    TABLET["Tablet"]
+
+    HOTEL -- "wlan0 (built-in, client)" --> PI
+    PI -- "wg0 tunnel" --> VPN
+    VPN --> HOME
+    PI -- "wlan1 (USB adapter, AP)<br/>SSID: PiTravel<br/>192.168.50.0/24" --> PHONE
+    PI -- " " --> LAPTOP
+    PI -- " " --> TABLET
 ```
 
 ## Features
@@ -39,14 +37,25 @@ Turns a Raspberry Pi into a portable travel router. Connect to hotel/cafe WiFi, 
 
 Most hotel WiFis require web authentication (captive portal). The Pi can't open a browser, so PiTravel uses MAC cloning:
 
-```
-1. Pi connects to hotel WiFi    ──→  Portal detected
-2. User taps "Clone my MAC"     ──→  Pi copies your phone's MAC address
-3. User disconnects from Pi     ──→  Connects phone directly to hotel WiFi
-4. User passes the portal       ──→  Hotel authorizes that MAC
-5. User reconnects to Pi        ──→  Taps "Reconnect"
-6. Pi reconnects with cloned MAC ──→  Hotel sees authorized MAC, grants access
-7. VPN starts automatically     ──→  All traffic encrypted
+```mermaid
+sequenceDiagram
+    participant U as User Phone
+    participant P as PiTravel
+    participant H as Hotel WiFi
+
+    P->>H: Connect to WiFi
+    H-->>P: Captive portal detected
+    U->>P: Tap "Clone my MAC"
+    P->>P: Copy phone's MAC to wlan0
+    U->>H: Disconnect from Pi, connect to hotel
+    U->>H: Pass captive portal (browser auth)
+    H-->>H: Authorize MAC
+    U->>P: Reconnect to PiTravel
+    U->>P: Tap "Reconnect"
+    P->>H: Reconnect with cloned MAC
+    H-->>P: Access granted (MAC authorized)
+    P->>P: Start WireGuard VPN
+    Note over U,H: All traffic now encrypted via VPN
 ```
 
 ## Hardware
@@ -167,15 +176,12 @@ System services:
 
 ## Traffic routing
 
-```
-Client device
-  │
-  ▼
-wlan1 (AP, 192.168.50.0/24)
-  │
-  ├─── wg0 available? ──→ NAT via wg0 (encrypted)
-  │
-  └─── fallback ──→ NAT via wlan0 (direct)
+```mermaid
+flowchart LR
+    C["Client device"] --> AP["wlan1 (AP)<br/>192.168.50.0/24"]
+    AP --> CHECK{wg0 up?}
+    CHECK -- Yes --> WG["NAT via wg0<br/>(encrypted)"]
+    CHECK -- No --> WLAN["NAT via wlan0<br/>(direct)"]
 ```
 
 ## License
