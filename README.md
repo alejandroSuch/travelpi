@@ -89,59 +89,17 @@ Mobile-first dark interface served at `http://192.168.50.1` (port 80).
 
 Shows battery level, connected devices, VPN status, storage usage. Links to WiFi manager, media server, and Jellyfin sync.
 
-```
-┌──────────────────────────┐
-│       ┌──────┐           │
-│       │ Logo │           │
-│       └──────┘           │
-│      PiTravel            │
-│                          │
-│  ┌──────┬──────┬──────┐  │
-│  │ 78%  │  3   │  On  │  │
-│  │ Batt │ Devs │ VPN  │  │
-│  └──────┴──────┴──────┘  │
-│                          │
-│  ┌────────────────────┐  │
-│  │ WiFi      Hotel ▸  │  │
-│  ├────────────────────┤  │
-│  │ Media    12 films ▸│  │
-│  ├────────────────────┤  │
-│  │ Sync     Jellyfin ▸│  │
-│  └────────────────────┘  │
-│                          │
-│  Storage  12.4 / 64 GB   │
-│  ████████░░░░░░░░░ 19%   │
-└──────────────────────────┘
-```
+<p align="center">
+  <img src="docs/home-screen.svg" width="300" alt="Home screen"/>
+</p>
 
 ### WiFi screen
 
 Lists available networks with signal strength. Shows captive portal alert with MAC clone button when detected.
 
-```
-┌──────────────────────────┐
-│  ← Conectar WiFi         │
-│                          │
-│  ┌────────────────────┐  │
-│  │ ⚠ Portal detectado │  │
-│  │ [Clonar mi MAC]    │  │
-│  └────────────────────┘  │
-│                          │
-│  Redes       [Escanear]  │
-│                          │
-│  ┌────────────────────┐  │
-│  │ ● Hotel_WiFi  -45  │  │
-│  │   Cafe_Guest  -62  │  │
-│  │   Airport     -78  │  │
-│  └────────────────────┘  │
-│                          │
-│  ┌────────────────────┐  │
-│  │ Conectar a Hotel   │  │
-│  │ [___contraseña___] │  │
-│  │ [Cancel] [Connect] │  │
-│  └────────────────────┘  │
-└──────────────────────────┘
-```
+<p align="center">
+  <img src="docs/wifi-screen.svg" width="300" alt="WiFi screen"/>
+</p>
 
 ## Architecture
 
