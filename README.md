@@ -72,8 +72,7 @@ sequenceDiagram
 
 ```bash
 # Flash Raspberry Pi OS Lite to SD card, boot, SSH in, then:
-wget -O travelpi.sh https://raw.githubusercontent.com/alejandroSuch/travelpi/main/travelpi.sh
-sudo bash travelpi.sh
+curl -sLO https://raw.githubusercontent.com/alejandroSuch/travelpi/main/travelpi.sh && sudo bash travelpi.sh
 ```
 
 The installer prompts for:
