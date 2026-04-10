@@ -31,7 +31,7 @@ Most hotel WiFis require web authentication (captive portal). The Pi can't open 
 
 | Component | Required | Notes |
 |---|---|---|
-| Raspberry Pi 3B+/4/5 | Yes | Any model with built-in WiFi |
+| Raspberry Pi | Yes | Any model with built-in WiFi. Recommended: Zero 2 W for pricing and size |
 | USB WiFi adapter | Yes | For the access point (needs AP mode support, e.g. RT5370) |
 | USB drive / SSD | Yes | For media storage |
 | PiSugar HAT | No | Battery monitoring |
